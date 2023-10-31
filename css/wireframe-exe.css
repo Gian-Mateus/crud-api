@@ -1,0 +1,21 @@
+.cabeca{
+    height: 80px;
+}
+
+.carrosel{
+    height: 150px;
+}
+
+.itens{
+    height: 50px;
+}
+
+.rodape{
+    height: 200px;
+}
+
+.col{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

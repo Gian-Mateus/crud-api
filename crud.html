@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>CRUD Consumo de API</title>
+</head>
+<body class="h-100">
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header>
+            <div class="row">
+                <div class="col text-center">
+                    <h1>Olá, </h1>
+                    <h2>Seja bem-vindo ao CRUD de consumo da API Animals!</h2>
+                </div>
+            </div>
+        </header>
+        <!-- Botões -->
+        <div class="row pt-3 row-gap-3">
+            <div class="col-md">
+                <button class="btn btn-secondary w-100 h-100" id="btnSearch">Pesquisar</button>
+            </div>
+            <div class="col-md">
+                <button class="btn btn-custom w-100" id="btnList">Listar os Animals</button>
+            </div>
+            <div class="col-md">
+                <button class="btn btn-success w-100" id="btnAdd">Adicionar Animals</button>
+            </div>
+            <div class="col-md">
+                <button class="btn btn-primary w-100" id="btnUp">Atualizar Animals</button>
+            </div>
+            <div class="col-md">
+                <button class="btn btn-danger w-100" id="btnCDel">Deletar Animals</button>
+            </div>
+        </div>
+        <!-- Retorno da lista da API -->
+        <div class="row justify-content-center align-items-center g-2 mt-4 text-center form-general" id="rowList">
+            <div class="col">
+                <table class="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Espécie</th>
+                            <th>Cor</th>
+                            <th>Tamanho</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableList">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Input de pesquisa -->
+        <div class="row justify-content-center align-items-center g-2 mt-4 text-center form-general" id="rowSearch">
+            <h4 class="title-form">Pesquisar Animals: </h4>
+            <div class="col-4">
+                <form action="">
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" name="idSearch" id="idSearch" placeholder="" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-title="Importante:" data-bs-content="Somente números, sem pontos, víruglas ou espaços.">
+                                <label for="idSearch">ID</label>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-info mt-2" id="searchID">🔍</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- Tabela do pesquisar -->
+            <div class="row">
+                <div class="col">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Espécie</th>
+                                <th>Cor</th>
+                                <th>Tamanho</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablebody">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Atualizar animais -->
+        <div class="row justify-content-center align-items-center g-2 mt-5 text-center form-general" id="rowUpdate">
+            <h4 class="title-form">Atualizar Animals: </h4>
+            <div class="col-4">
+                <form action="">
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control" name="idUpdate" id="idUpdate" placeholder="" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-title="Importante:" data-bs-content="Somente números, sem pontos, víruglas ou espaços.">
+                        <label for="idUpdate">ID</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="nameUpdate" id="nameUpdate" placeholder="">
+                        <label for="nameUpdate">Nome</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="speciesUpdate" id="speciesUpdate" placeholder="">
+                        <label for="speciesUpdate">Espécie</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="colorUpdate" id="colorUpdate" placeholder="">
+                        <label for="colorUpdate">Cor</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="sizeUpdate" id="sizeUpdate" placeholder="">
+                        <label for="sizeUpdate">Tamanho</label>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-outline-success" id="btnPut">Atualizar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+                <div class="toast align-items-center bg-success position-fixed bottom-0 end-0 p-3" role="alert" aria-live="assertive" aria-atomic="true" id="toastSuccessUpdate">
+                    <div class="d-inline-flex">
+                        <div class="toast-body d-flex gap-0 column-gap-3">
+                            Seu animal foi atualizado!
+                            <button type="button" class="btn-close me-3 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <!-- Adicionar Animais -->
+        <div class="row justify-content-center align-items-center g-2 mt-5 text-center form-general" id="rowNew">
+            <h4 class="title-form">Adicionar Animals: </h4>
+            <div class="col-4">
+                <form action="">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="nameNew" id="nameNew" placeholder="">
+                        <label for="nameNew">Nome</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="speciesNew" id="speciesNew" placeholder="">
+                        <label for="speciesNew">Espécie</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="colorNew" id="colorNew" placeholder="">
+                        <label for="colorNew">Cor</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="sizeNew" id="sizeNew" placeholder="">
+                        <label for="sizeNew">Tamanho</label>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-outline-success" id="btnNew">Adicionar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="toast align-items-center bg-success position-fixed bottom-0 end-0 p-3" role="alert" aria-live="assertive" aria-atomic="true" id="toastSuccess">
+                <div class="d-inline-flex">
+                    <div class="toast-body d-flex gap-0 column-gap-3">
+                        Seu animal foi adicionado!
+                        <button type="button" class="btn-close me-3 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Deletar Animal -->
+        <div class="row justify-content-center align-items-center g-2 mt-4 text-center form-general" id="rowDelete">
+            <h4 class="title-form">Deletar Animals: </h4>
+            <div class="col-4">
+                <form action="">
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" name="idSearchDelete" id="idSearchDelete" placeholder="" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-title="Importante:" data-bs-content="Somente números, sem pontos, víruglas ou espaços.">
+                                <label for="idSearchDelete">ID</label>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-outline-danger mt-2" id="btnDelete">❌</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="toast align-items-center bg-success position-fixed bottom-0 end-0 p-3" role="alert" aria-live="assertive" aria-atomic="true" id="toastSuccessDelete">
+                <div class="d-inline-flex">
+                    <div class="toast-body d-flex gap-0 column-gap-3">
+                        Seu animal foi deletado!
+                        <button type="button" class="btn-close me-3 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid text-center my-5">
+        <footer>
+            <h6>Created by Gian Mateus</h6>
+            <a href="https://github.com/Gian-Mateus" target="_blank"><img src="assets/logo-github.svg" alt="Logo do Github"></a>
+            <a href="http://www.linkedin.com/in/gian-mateus-da-silveira-37a6b6181" target="_blank"><img src="assets/logo-linkedin.svg" alt="Logo do LinkedIn"></a>
+        </footer>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
