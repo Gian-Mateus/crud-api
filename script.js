@@ -6,51 +6,45 @@ const popoverHideFocus = document.querySelector('input');
 popoverHideFocus.addEventListener('focus', function() {
     this.setAttribute('data-bs-toggle', 'popover');
 
-    let popover = new bootstrap.Popover(this); 
+    const popover = new bootstrap.Popover(this); 
 
     setTimeout(function() {
         popover.hide();
     }, 2000);
 });
 
+//exibir "pop-up" de sucesso ao adicionar animal
+const showToast = (toastShow) => {
+    const myToast = new bootstrap.Toast(document.querySelector(toastShow));
+    myToast.show();
+}
+
 // pegando os IDs dos botões e das suas repectivas linhas de manipulação
-let btnAll = ["#btnSearch","#btnAdd","#btnUp","#btnCDel", "#btnList"];
-let rowsAll = ["#rowSearch", "#rowNew", "#rowUpdate", "#rowDelete", "#rowList"];
+const btnAll = ["#btnSearch","#btnAdd","#btnUp","#btnCDel", "#btnList"];
+const rowsAll = ["#rowSearch", "#rowNew", "#rowUpdate", "#rowDelete", "#rowList"];
 
 //função que tirará a classe form-general das linhas conforme o evento de cada botão e adicionará a classe nas outras linhas que não estão sendo usadas
 const openLayout = (rowID) => {
-    let rowCalled = document.querySelector(rowID);
+    const rowCalled = document.querySelector(rowID);
     rowCalled.classList.remove("form-general");
-    let newRosAll = removeItem(rowsAll, rowID);
-    for(pos in newRosAll){
-        let row = document.querySelector(newRosAll[pos])
-        row.classList.add("form-general")
-    };
-};
+
+    const newRowsAll = removeItem(rowsAll, rowID);
+
+    newRowsAll.forEach(newRow => {
+        const row = document.querySelector(newRow);
+        row.classList.add("form-general");
+    });
+}
+
 //função para remover item de um array como se fosse um pesquisar, obs.: retorna um array sem o ítem removido
 const removeItem = (array, element) => {
-    const index = array.indexOf(element);
-    if (index !== -1) {
-        array = [...array.slice(0, index), ...array.slice(index + 1)];
-    }
-    return array;
-};
+    return newArray = array.filter((item) => item !== element)
+}
 // atribuindo as funções criadas para o evento click de cada botão
-let btnSearch = document.querySelector(btnAll[0]);
-btnSearch.addEventListener('click', function(){
-    openLayout(rowsAll[0])
-});
-let btnAdd = document.querySelector(btnAll[1]);
-btnAdd.addEventListener('click', function(){
-    openLayout(rowsAll[1])
-});
-let btnUp = document.querySelector(btnAll[2]);
-btnUp.addEventListener('click', function(){
-    openLayout(rowsAll[2])
-});
-let btnCDel = document.querySelector(btnAll[3]);
-btnCDel.addEventListener('click', function(){
-    openLayout(rowsAll[3])
+btnAll.forEach((btn, index) => {
+    document.querySelector(btn).addEventListener('click', () => {
+        openLayout(rowsAll[index]);
+    });
 });
 // evita que recarregue a página com a ação submit do botões nos forms
 const forms = document.querySelectorAll("form");
@@ -60,102 +54,93 @@ forms.forEach(function(form) {
     });
 });
 
-//Botão de pesquisar com a lupa, já faz a requisição para api e retorna na tela
-let btnSearchAPI = document.querySelector("#searchID");
-btnSearchAPI.addEventListener('click', function(){
-    let valueInput = document.querySelector("#idSearch").value
+const sendRequest = async (url, method, body) => {
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: {
+            "Content-type": "application/json; charset=UTF-8"
+            },
+            body
+        });
 
-    fetch(`http://cafepradev.com.br:21020/animals/search/${valueInput}`)
-    .then(ret => ret.json())
+        if (!response.ok) {
+        throw new Error("Erro na requisição! Verifique os dados informados.");
+        }
+        return await response.json();
+
+    } catch (error) {
+        document.querySelector("#toast").classList.remove("bg-succes");
+        document.querySelector("#toast").classList.add("bg-danger");
+        showToast("#toast");
+        document.querySelector(".toast-body").innerText = error.message;
+    }
+}
+
+//Botão de pesquisar com a lupa, já faz a requisição para api e retorna na tela
+const btnSearchAPI = document.querySelector("#searchID");
+btnSearchAPI.addEventListener('click', () => {
+    const valueInput = document.querySelector("#idSearch").value;
+
+    sendRequest(`http://cafepradev.com.br:21020/animals/search/${valueInput}`, "GET")
     .then((data) => {
-        let structure = `<tr>
+        const structure = `<tr>
                             <th>${data.name}</th>
                             <th>${data.species}</th>
                             <th>${data.color}</th>
                             <th>${data.size}</th>
-                        </tr>`
+                        </tr>`;
 
         document.querySelector("#tablebody").innerHTML = structure;
     })
 })
 // ação do botão de lista, faz a requisição para API e traz toda a informação do json como tabela
-let btnList = document.querySelector(btnAll[4]);
-btnList.addEventListener("click", () => {
+document.querySelector(btnAll[4]).addEventListener("click", () => {
     openLayout(rowsAll[4])
-    fetch("http://cafepradev.com.br:21020/animals/list")
-    .then(ret => ret.json())
+    sendRequest("http://cafepradev.com.br:21020/animals/list", "GET")
     .then((data) => {
-        console.log(data);
         let structure = '';
-        for(pos in data){
-            structure += `
-                        <tr>
-                            <th>${data[pos].id}</th>
-                            <th>${data[pos].name}</th>
-                            <th>${data[pos].species}</th>
-                            <th>${data[pos].color}</th>
-                            <th>${data[pos].size}</th>
-                        </tr>
-                        `
-                    }
+        data.forEach(animal => {
+            structure += `<tr>
+                            <th>${animal.id}</th>
+                            <th>${animal.name}</th>
+                            <th>${animal.species}</th>
+                            <th>${animal.color}</th>
+                            <th>${animal.size}</th>
+                        </tr>`;
+                    })
                 document.querySelector("#tableList").innerHTML = structure;
-    })
-})
+    });
+});
 
-//exibir "pop-up" de sucesso ao adicionar animal
-const showToast = (toastShow) => {
-    const myToast = document.querySelector(toastShow);
-    const toast = new bootstrap.Toast(myToast);
-    toast.show();
-}
 //botão adicionar animal
-let btnNew = document.querySelector("#btnNew")
-btnNew.addEventListener('click', () => {
-    let newAnimal = {
+document.querySelector("#btnNew").addEventListener('click', () => {
+    const newAnimal = {
         name: document.querySelector("#nameNew").value,
         species: document.querySelector("#speciesNew").value,
         color: document.querySelector("#colorNew").value,
         size: document.querySelector("#sizeNew").value
     }
     
-    fetch("http://cafepradev.com.br:21020/animals/insert", {
-        method: "POST",
-        headers : {
-            "Content-type" : "application/json; charset=UTF-8"
-        },
-        body : JSON.stringify({
-            "name": newAnimal.name,
-            "species": newAnimal.species,
-            "color": newAnimal.color,
-            "size": newAnimal.size
-        }) 
-    })
-    .then(ret => {
-        if(!ret){
-            throw new Error("Erro na requisição! Verifique os dados informados")
-        }
-        return ret.json()
-    })
-    .then(data => {
-        showToast("#toastSuccess");
-    })
-    .catch(error => {
-        let infoToast = document.querySelector(".toast-body");
-        infoToast.innerHTML = error
+    sendRequest("http://cafepradev.com.br:21020/animals/insert", "POST" , JSON.stringify(newAnimal))
+    .then(() => {
+        document.querySelector("#toast").classList.remove("bg-danger");
+        document.querySelector("#toast").classList.add("bg-success");
+        document.querySelector(".toast-body").innerText = "Animal adicionado com sucesso!";
+        showToast("#toast");
     })
 })
-//para atualizar, primeiro ele vai buscar as informações do animal segundo o ID, trazer as informações para os inputs
+//para atualizar, primeiro ele vai buscar as informações do animal segundo o ID, traz as informações para os inputs
 //depois o usuário muda as informações do input e põe no botão de atualizar
 const searForUpdate = document.querySelector("#idUpdate");
-let animal = {
+const animal = {
     name: document.querySelector("#nameUpdate"),
     species: document.querySelector("#speciesUpdate"),
     color:  document.querySelector("#colorUpdate"),
     size:  document.querySelector("#sizeUpdate")
 }
 searForUpdate.addEventListener("blur", function(){
-    fetch(`http://cafepradev.com.br:21020/animals/search/${this.value}`)
-    .then(ret => ret.json())
+    sendRequest(`http://cafepradev.com.br:21020/animals/search/${this.value}`, "GET")
     .then(data => {
         animal.name.value = data.name;
         animal.species.value = data.species;
@@ -167,33 +152,20 @@ searForUpdate.addEventListener("blur", function(){
         animal.size.focus();
     })
 })
-const updateAnimal = document.querySelector("#btnPut");
-updateAnimal.addEventListener('click', function(){
-    fetch("http://cafepradev.com.br:21020/animals/update", {
-        method: "PUT",
-        headers : {
-            "Content-type" : "application/json; charset=UTF-8"
-        },
-        body : JSON.stringify({
-            "id": searForUpdate.value,
-            "name": animal.name.value,
-            "species": animal.species.value,
-            "color": animal.color.value,
-            "size": animal.size.value
-        }) 
-    })
-    .then(ret => {
-        if(!ret){
-            throw new Error("Erro na requisição! Verifique os dados informados")
-        }
-        return ret.json()
-    })
-    .then(data => {
-        showToast("#toastSuccessUpdate");
-    })
-    .catch(error => {
-        let infoToast = document.querySelector(".toast-body");
-        infoToast.innerHTML = error
+
+document.querySelector("#btnPut").addEventListener('click', function(){
+    sendRequest("http://cafepradev.com.br:21020/animals/update", "PUT" ,JSON.stringify({
+            id: searForUpdate.value,
+            name: animal.name.value,
+            species: animal.species.value,
+            color: animal.color.value,
+            size: animal.size.value
+        }))
+    .then(() => {
+        document.querySelector("#toast").classList.remove("bg-danger");
+        document.querySelector("#toast").classList.add("bg-success");
+        document.querySelector(".toast-body").innerText = "Animal atualizado com sucesso!";
+        showToast("#toast");
     })
 })
 
@@ -201,26 +173,13 @@ updateAnimal.addEventListener('click', function(){
 let deleteAnimal = document.querySelector("#btnDelete");
 deleteAnimal.addEventListener("click", function(){
     let valueInput = document.querySelector("#idSearchDelete").value
-    fetch(" http://cafepradev.com.br:21020/animals/delete", {
-        method: "DELETE",
-        headers : {
-            "Content-type" : "application/json; charset=UTF-8"
-        },
-        body : JSON.stringify({
-            "id": valueInput,
-        }) 
-    })
-    .then(ret => {
-        if(!ret){
-            throw new Error("Erro na requisição! Verifique os dados informados")
-        }
-        return ret.json()
-    })
-    .then(data => {
-        showToast("#toastSuccessDelete");
-    })
-    .catch(error => {
-        let infoToast = document.querySelector(".toast-body");
-        infoToast.innerHTML = error
-    })
-})
+    sendRequest(" http://cafepradev.com.br:21020/animals/delete", "DELETE", JSON.stringify({
+            id: valueInput
+        }) )
+    .then(() => {
+        document.querySelector("#toast").classList.remove("bg-danger");
+        document.querySelector("#toast").classList.add("bg-success");
+        document.querySelector(".toast-body").innerText = "Animal deletado com sucesso!";
+        showToast("#toast");
+    });
+});

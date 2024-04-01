@@ -4,7 +4,8 @@ body{
 }
 
 h1, h2, h3, h4{
-    color: #000;
+    color: #000e78;
+    font-weight: 700;
 }
 
 .btn-custom{
